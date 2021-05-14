@@ -149,6 +149,7 @@ class OvenTest {
         oven.start(program);
 
         verify(fanMock, times(1)).on();
+        verify(fanMock, times(2)).off();
         verify(heatingModuleMock).heater(settings1);
         verify(heatingModuleMock).termalCircuit(settings2);
     }

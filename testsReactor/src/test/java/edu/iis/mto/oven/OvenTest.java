@@ -24,17 +24,17 @@ class OvenTest {
     @Mock
     HeatingModule heatingModuleMock;
 
+    Oven oven;
+
     @BeforeEach
     void setUp() {
-
+        oven = new Oven(heatingModuleMock, fanMock);
     }
 
     @Test
     void runStageShouldThrowOvenExceptionOnHeatingException() throws HeatingException {
         // given
         final int TEMP = 220, TIME = 90;
-
-        Oven oven = new Oven(heatingModuleMock, fanMock);
 
         ProgramStage stage = ProgramStage.builder()
                 .withTargetTemp(TEMP)
@@ -58,6 +58,32 @@ class OvenTest {
 
         // then
         assertThrows(OvenException.class, () -> oven.start(program));
+    }
+
+    @Test
+    void checkIfGrillWasRun() {
+        final int TEMP = 220, TIME = 90;
+
+        ProgramStage stage = ProgramStage.builder()
+                .withTargetTemp(TEMP)
+                .withStageTime(TIME)
+                .withHeat(HeatType.GRILL)
+                .build();
+        List<ProgramStage> stages = List.of(stage);
+
+        HeatingSettings settings = HeatingSettings.builder()
+                .withTargetTemp(TEMP)
+                .withTimeInMinutes(TIME)
+                .build();
+
+        BakingProgram program = BakingProgram.builder()
+                .withInitialTemp(0)
+                .withStages(stages)
+                .build();
+
+        oven.start(program);
+
+        verify(heatingModuleMock).grill(settings);
     }
 
 }

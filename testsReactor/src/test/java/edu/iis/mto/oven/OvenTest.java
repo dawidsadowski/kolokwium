@@ -86,4 +86,30 @@ class OvenTest {
         verify(heatingModuleMock).grill(settings);
     }
 
+    @Test
+    void checkIfHeaterWasRun() {
+        final int TEMP = 220, TIME = 90;
+
+        ProgramStage stage = ProgramStage.builder()
+                .withTargetTemp(TEMP)
+                .withStageTime(TIME)
+                .withHeat(HeatType.HEATER)
+                .build();
+        List<ProgramStage> stages = List.of(stage);
+
+        HeatingSettings settings = HeatingSettings.builder()
+                .withTargetTemp(TEMP)
+                .withTimeInMinutes(TIME)
+                .build();
+
+        BakingProgram program = BakingProgram.builder()
+                .withInitialTemp(0)
+                .withStages(stages)
+                .build();
+
+        oven.start(program);
+
+        verify(heatingModuleMock).heater(settings);
+    }
+
 }

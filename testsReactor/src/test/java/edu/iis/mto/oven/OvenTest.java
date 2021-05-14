@@ -112,4 +112,45 @@ class OvenTest {
         verify(heatingModuleMock).heater(settings);
     }
 
+    @Test
+    void checkIfMultipleProgramsWereRunProperly() throws HeatingException {
+        final int TEMP_1 = 180, TEMP_2 = 220,
+                TIME_1 = 60, TIME_2 = 120;
+
+        ProgramStage stage1 = ProgramStage.builder()
+                .withTargetTemp(TEMP_1)
+                .withStageTime(TIME_1)
+                .withHeat(HeatType.HEATER)
+                .build();
+
+        ProgramStage stage2 = ProgramStage.builder()
+                .withTargetTemp(TEMP_2)
+                .withStageTime(TIME_2)
+                .withHeat(HeatType.THERMO_CIRCULATION)
+                .build();
+
+        List<ProgramStage> stages = List.of(stage1, stage2);
+
+        HeatingSettings settings1 = HeatingSettings.builder()
+                .withTargetTemp(TEMP_1)
+                .withTimeInMinutes(TIME_1)
+                .build();
+
+        HeatingSettings settings2 = HeatingSettings.builder()
+                .withTargetTemp(TEMP_2)
+                .withTimeInMinutes(TIME_2)
+                .build();
+
+        BakingProgram program = BakingProgram.builder()
+                .withInitialTemp(0)
+                .withStages(stages)
+                .build();
+
+        oven.start(program);
+
+        verify(fanMock, times(1)).on();
+        verify(heatingModuleMock).heater(settings1);
+        verify(heatingModuleMock).termalCircuit(settings2);
+    }
+
 }
